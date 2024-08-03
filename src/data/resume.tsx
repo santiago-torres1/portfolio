@@ -10,7 +10,7 @@ export const DATA = {
   description:
     "Computer Systems Technician and aspiring Full-stack Developer. I love building things and helping people.",
   summary:
-    "Hi! I'm Santiago. I recently graduated from Conestoga; I completed the Computer Systems Technician diploma. Although my program was mainly focused on IT, Network Infrastructure and Cybersecurity, I am passionate about Software and Web Development. I Have created multiple projects which you can find below.",
+    "Hi! I'm Santiago. I recently graduated from Conestoga; I completed the Computer Systems Technician diploma. Although my program was mainly focused on IT, Network Infrastructure and Cybersecurity, I am passionate about Software and Web Development. I have created multiple projects which you can find below.",
   avatarUrl: "/me.jpeg",
   skills: [
     "React",
@@ -139,8 +139,8 @@ export const DATA = {
       href: "https://conestogac.on.ca",
       degree: "Computer Systems Technician Diploma (CST)",
       logoUrl: "/conestoga.jpg",
-      start: "2016",
-      end: "2021",
+      start: "2022",
+      end: "2024",
     }
   ],
   projects: [
