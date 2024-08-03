@@ -146,7 +146,7 @@ export const DATA = {
   projects: [
     {
       title: "Shalom Store",
-      href: "https://chatcollect.com",
+      href: "https://github.com/santiago-torres1/shalom",
       dates: "Feb 2024 - Apr 2024",
       active: true,
       description:
@@ -176,7 +176,7 @@ export const DATA = {
     },
     {
       title: "Car Rental Website",
-      href: "https://magicui.design",
+      href: "https://github.com/santiago-torres1/car-rental-website",
       dates: "July 2024 - Present",
       active: true,
       description:
@@ -193,7 +193,7 @@ export const DATA = {
       links: [
         {
           type: "Source",
-          href: "https://github.com/magicuidesign/magicui",
+          href: "https://github.com/santiago-torres1/car-rental-website",
           icon: <Icons.github className="size-3" />,
         },
       ],
@@ -202,7 +202,7 @@ export const DATA = {
     },
     {
       title: "Smart Home Automation System",
-      href: "https://llm.report",
+      href: "https://github.com/santiago-torres1/smart-home-automation-system",
       dates: "May 2024 - August 2024",
       active: true,
       description:
@@ -219,12 +219,12 @@ export const DATA = {
       links: [
         {
           type: "Front End",
-          href: "https://llm.report",
+          href: "https://github.com/santiago-torres1/smart-home-automation-system",
           icon: <Icons.globe className="size-3" />,
         },
         {
           type: "Back End",
-          href: "https://github.com/santiago-torres1/smart-home-automation-system",
+          href: "https://github.com/santiago-torres1/smart-home-automation-system-backend",
           icon: <Icons.github className="size-3" />,
         },
       ],
