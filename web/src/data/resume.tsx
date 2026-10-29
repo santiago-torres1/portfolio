@@ -168,7 +168,8 @@ export const DATA = {
       issued: "Aug 2025",
       expires: "Aug 2027",
       image: "/badges/microsoft-associate.svg",
-      href: "https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/",
+      credentialUrl:
+        "https://learn.microsoft.com/users/santiagotorres-7196/credentials/39d022ecb6b1e89a",
     },
     {
       title: "Identity and Access Administrator Associate",
@@ -177,7 +178,8 @@ export const DATA = {
       issued: "Jun 2025",
       expires: "Jun 2027",
       image: "/badges/microsoft-associate.svg",
-      href: "https://learn.microsoft.com/en-us/credentials/certifications/identity-and-access-administrator/",
+      credentialUrl:
+        "https://learn.microsoft.com/users/santiagotorres-7196/credentials/cab615b42b4734c2",
     },
     {
       title: "Cisco Certified Network Associate",
@@ -186,7 +188,8 @@ export const DATA = {
       issued: "Oct 2024",
       expires: "Oct 2027",
       image: "/badges/ccna.png",
-      href: "https://www.cisco.com/site/us/en/learn/training-certifications/certifications/enterprise/ccna/index.html",
+      credentialUrl:
+        "https://www.credly.com/badges/2dcbce15-cea7-4e71-a07c-3818787cad5a",
     },
   ],
 } as const;

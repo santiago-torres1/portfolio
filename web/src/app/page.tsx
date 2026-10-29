@@ -143,7 +143,10 @@ export default function Page() {
                   expires={"expires" in cert ? cert.expires : undefined}
                   note={"note" in cert ? cert.note : undefined}
                   image={cert.image}
-                  href={cert.href}
+                  credentialUrl={
+                    "credentialUrl" in cert ? cert.credentialUrl : undefined
+                  }
+                  href={"href" in cert ? cert.href : undefined}
                   status={"status" in cert ? cert.status : undefined}
                 />
               </BlurFade>
