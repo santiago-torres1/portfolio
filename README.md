@@ -66,7 +66,7 @@ as a Lambda extension, so it only activates inside the Lambda runtime.
   posted to the job summary.
 - **Merges to `main`** run [`cd.yml`](.github/workflows/cd.yml): CI again as a
   gate, then in the `production` environment it builds the arm64 image and
-  pushes it to ECR (tagged with the commit SHA, deployed by digest), runs
+  pushes it to ECR (tagged with the commit SHA and run ID, deployed by digest), runs
   `terraform apply`, rolls the image out with `aws lambda update-function-code`,
   invalidates CloudFront, and smoke-tests the live URL.
 
