@@ -1,0 +1,38 @@
+version: 2
+
+# Weekly, grouped updates. The cooldown skips releases younger than a week,
+# matching pnpm's minimumReleaseAge supply-chain policy.
+updates:
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      web:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: /web
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        update-types: [minor, patch]
+
+  - package-ecosystem: terraform
+    directories: [/infra/bootstrap, /infra/app]
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7

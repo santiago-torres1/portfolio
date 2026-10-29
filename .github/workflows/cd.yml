@@ -1,0 +1,146 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+      - "infra/bootstrap/**" # applied manually, see README
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  TERRAFORM_VERSION: 1.17.1
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+    # Called workflows can't exceed the caller's permissions, and GitHub checks
+    # this before evaluating `if:` (ci.yml's plan job is skipped on push).
+    permissions:
+      contents: read
+      id-token: write
+
+  deploy:
+    name: Deploy to AWS
+    needs: ci
+    if: vars.AWS_DEPLOY_ROLE_ARN != ''
+    # Native arm64 build for the arm64 Lambda function.
+    runs-on: ubuntu-24.04-arm
+    environment:
+      # Add required reviewers to this environment for a manual approval gate.
+      name: production
+      url: ${{ steps.outputs.outputs.site_url }}
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      TF_IN_AUTOMATION: "true"
+      TF_INPUT: "false"
+    defaults:
+      run:
+        working-directory: infra/app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: terraform init
+        run: >-
+          terraform init
+          -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}"
+          -backend-config="key=app/terraform.tfstate"
+          -backend-config="region=${{ vars.AWS_REGION }}"
+
+      # The site URL is baked into the build for metadata/Open Graph tags. It
+      # comes from the previous deploy's state, so the very first deploy builds
+      # without it; set the SITE_URL repo variable to override.
+      - name: Resolve site URL
+        id: site
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          url="${SITE_URL:-$(terraform output -raw site_url 2>/dev/null || true)}"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
+        id: ecr
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      # provenance/sbom off: Lambda rejects multi-manifest image indexes.
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        id: build
+        with:
+          context: web
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          sbom: false
+          tags: ${{ steps.ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
+          build-args: NEXT_PUBLIC_SITE_URL=${{ steps.site.outputs.url }}
+          cache-from: type=gha,scope=web-arm64
+          cache-to: type=gha,scope=web-arm64,mode=max
+
+      - name: Pin image by digest
+        id: image
+        run: echo "uri=${{ steps.ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}@${{ steps.build.outputs.digest }}" >> "$GITHUB_OUTPUT"
+
+      - name: terraform apply
+        run: terraform apply -auto-approve -lock-timeout=5m -var "image_uri=${{ steps.image.outputs.uri }}"
+
+      - name: Read outputs
+        id: outputs
+        run: |
+          {
+            echo "site_url=$(terraform output -raw site_url)"
+            echo "function=$(terraform output -raw lambda_function_name)"
+            echo "distribution=$(terraform output -raw cloudfront_distribution_id)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Roll out image to Lambda
+        env:
+          FUNCTION: ${{ steps.outputs.outputs.function }}
+          IMAGE_URI: ${{ steps.image.outputs.uri }}
+        run: |
+          aws lambda update-function-code --function-name "$FUNCTION" --image-uri "$IMAGE_URI" --output text --query LastUpdateStatus
+          aws lambda wait function-updated-v2 --function-name "$FUNCTION"
+
+      - name: Invalidate CloudFront cache
+        env:
+          DISTRIBUTION: ${{ steps.outputs.outputs.distribution }}
+        run: |
+          id=$(aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION" --paths "/*" --query Invalidation.Id --output text)
+          aws cloudfront wait invalidation-completed --distribution-id "$DISTRIBUTION" --id "$id"
+
+      - name: Smoke test
+        env:
+          SITE_URL: ${{ steps.outputs.outputs.site_url }}
+        run: |
+          for path in / /blog; do
+            curl -fsS --retry 10 --retry-delay 15 --retry-all-errors -o /dev/null \
+              -w "$path %{http_code} %{time_total}s\n" "$SITE_URL$path"
+          done
+          {
+            echo "### Deployed :rocket:"
+            echo "- Site: $SITE_URL"
+            echo "- Image: \`${{ steps.image.outputs.uri }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
