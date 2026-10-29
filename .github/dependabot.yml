@@ -9,6 +9,10 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    ignore:
+      # Types track the Node runtime major (web/.nvmrc), not the latest Node.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     groups:
       web:
         update-types: [minor, patch]
