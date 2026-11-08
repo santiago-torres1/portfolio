@@ -158,9 +158,9 @@ export const DATA = {
       issuer: "Microsoft",
       issued: "Nov 2026",
       expires: "Nov 2027",
-      note: "Exam scheduled for November 2026",
       image: "/badges/microsoft-expert.svg",
-      href: "https://learn.microsoft.com/en-us/credentials/certifications/devops-engineer/",
+      credentialUrl: 
+        "https://learn.microsoft.com/api/credentials/share/en-us/SantiagoTorres-7196/2747B8B29D2FF83E?sharingId=7A9AEC27EA6E3C73",
     },
     {
       title: "Azure Administrator Associate",
