@@ -123,8 +123,8 @@ export default function Page() {
                 </h2>
                 <p className="text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                   Microsoft and Cisco certifications across cloud
-                  administration, identity, and networking, with the Azure
-                  DevOps Engineer Expert exam up next.
+                  administration, identity, and networking. Recently got DevOps
+                  Engineer Expert as well.
                 </p>
               </div>
             </div>
